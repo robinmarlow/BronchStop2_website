@@ -4,7 +4,7 @@ on:
   schedule:
     - cron:  '0 3 * * *'
   push:
-    branches: main
+    branches: [main]
     
 jobs:
   import-data:
@@ -12,16 +12,23 @@ jobs:
     permissions:
         contents: write
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
         with:
           use-public-rspm: true
+
+      - name: Set up Pandoc
+        uses: r-lib/actions/setup-pandoc@v2
 
       - name: Install packages
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
           cache-version: 1
           packages: |
+            any::rmarkdown
             any::flexdashboard
             any::aws.s3
             any::gt
@@ -32,9 +39,6 @@ jobs:
             any::maps
             any::viridis
             any::ggridges
- 
-      - name: Check out repository
-        uses: actions/checkout@v3
 
       - name: Import data
         env: 
@@ -47,4 +51,4 @@ jobs:
       - name: Rename file 
         run: mv BronchStop_S2_no_secrets.html ./season3/index.html
 
-      - uses: stefanzweifel/git-auto-commit-action@v5
+      - uses: stefanzweifel/git-auto-commit-action@v7
